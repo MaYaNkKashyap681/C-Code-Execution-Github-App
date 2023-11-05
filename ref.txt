@@ -1,0 +1,27 @@
+ app.on('issue_comment.created', async (context) => {
+    console.log("New Issue Comment is Created");
+    console.log(context.payload.issue.title);
+
+    try {
+      // Get the installation ID from the context
+      const installationId = context.payload.installation.id;
+      // Initialize Octokit with the installation ID
+      const octokit = await app.auth(installationId);
+
+      const comment = context.payload.comment;
+
+      // Check if the comment was created by the bot itself
+      if (comment.user.login === 'codecrackx45mak[bot]') {
+        return;
+      }
+
+      const issueComment = context.issue({
+        body: "Thank you for creating the comment. Our team will review it.",
+      });
+
+      // Post the "thank you" comment using Octokit
+      await octokit.issues.createComment(issueComment);
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  });
